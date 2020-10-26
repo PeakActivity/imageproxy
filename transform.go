@@ -18,6 +18,8 @@ import (
 	"bytes"
 	"fmt"
 	"image"
+	"image/color"
+	"image/draw"
 	_ "image/gif" // register gif format
 	"image/jpeg"
 	"image/png"
@@ -67,6 +69,14 @@ func Transform(img []byte, opt Options) ([]byte, error) {
 		if exifOpt := exifOrientation(r); exifOpt.transform() {
 			m = transformImage(m, exifOpt)
 		}
+	}
+
+	// check if png to changed its background to white
+	if format == "png" && opt.Format == "jpeg" {
+		newImg := image.NewRGBA(m.Bounds())
+		draw.Draw(newImg, newImg.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
+		draw.Draw(newImg, newImg.Bounds(), m, m.Bounds().Min, draw.Over)
+		m = newImg
 	}
 
 	// encode webp and tiff as jpeg by default
