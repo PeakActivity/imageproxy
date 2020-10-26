@@ -139,6 +139,19 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return // ignore favicon requests
 	}
 
+	// serve robots.txt file
+	if r.URL.Path == "/robots.txt" {
+
+		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprint(w, `User-agent: *
+Disallow:
+User-agent: Googlebot
+Disallow:
+User-agent: Googlebot-Image
+Disallow:`)
+		return
+	}
+
 	if r.URL.Path == "/" || r.URL.Path == "/health-check" {
 		fmt.Fprint(w, "OK")
 		return
